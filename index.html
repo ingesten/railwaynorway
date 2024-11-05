@@ -3,7 +3,7 @@
 <head>
 
     <!-- 
-        Version: 5
+        Version: 6
         This page will rotate between a Bane NOR fullscreen train status of your selected railway station 
         and a Yr.no meteogram SVG for weather forecast.
         Author: isten
@@ -12,103 +12,108 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rotating Pages with Meteogram</title>
+    <title>Rotating Pages with News</title>
+
     <style>
-        /* Styling for the debug information at the top */
-        #debug {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 10%; /* Top 10% of the screen */
-            background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black background */
-            color: white;
-            padding: 10px;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            z-index: 100; /* Make sure it's on top */
-        }
-        
-        /* Styling for the iframe to fill 90% of the remaining screen */
-        #webframe {
-            position: absolute;
-            top: 10%; /* Start below the debug section */
-            left: 0;
-            width: 100%;
-            height: 90%; /* Bottom 90% of the screen */
-        }
-
-        /* Styling for the meteogram container */
-        #meteogram-container {
-            display: none;
-            position: absolute;
-            top: 10%; /* Start below the debug section */
-            left: 0;
-            width: 100%;
-            height: 90%; /* Bottom 90% of the screen */
-            text-align: center;
-        }
-
-        /* SVG will take up 100% of the available height */
-        #meteogram {
+        html, body {
             height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        iframe {
+            width: 100%;
+            height: 90%; /* Adjusted height for space for the RSS feed */
+            border: none;
+        }
+
+        #rssFeed {
+            background-color: #f0f0f0;
+            padding: 10px;
+            font-size: 18px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .news-ticker {
+            display: flex;
+            animation: scroll-left 15s linear infinite;
+        }
+
+        @keyframes scroll-left {
+            0% {
+                transform: translateX(100%);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
         }
     </style>
+
     <script>
-        const ROTATION_INTERVAL = 20000; // Time interval in milliseconds (20 seconds)
-        const urls = [
-            "https://rtd.banenor.no/web_client/std?station=JEH&layout=landscape&content=departure&notice=yes",   // Train status page
-            "meteogram" // Placeholder to display the meteogram SVG
+        // Constants
+        const ROTATION_INTERVAL = 30000; // Time interval in milliseconds (30 seconds)
+        const URLs = [
+            "https://rtd.banenor.no",   // Train status page
+            "https://www.yr.no"         // Weather page
         ];
 
         let currentIndex = 0;
-        let rotationCount = 0; // To count how many times the rotation has occurred
-
-        function updateDebugInfo() {
-            const debugElement = document.getElementById('debug');
-            debugElement.innerHTML = `Rotation Count: ${rotationCount} | Current Display: ${currentIndex === 1 ? 'Yr.no Meteogram' : urls[currentIndex]}`;
-        }
 
         function rotatePages() {
-            if (urls[currentIndex] === "meteogram") {
-                // Show the meteogram SVG
-                document.getElementById('webframe').style.display = 'none';
-                document.getElementById('meteogram-container').style.display = 'block';
-            } else {
-                // Show the train status iframe
-                document.getElementById('meteogram-container').style.display = 'none';
-                document.getElementById('webframe').style.display = 'block';
-                document.getElementById('webframe').src = urls[currentIndex];
-            }
-
-            // Update debug info
-            rotationCount++;
-            updateDebugInfo();
-
+            // Set the src of the iframe to the current URL
+            document.getElementById('webframe').src = URLs[currentIndex];
             // Update index to the next URL
-            currentIndex = (currentIndex + 1) % urls.length;
-
-            // Set timer to load the next content after ROTATION_INTERVAL
+            currentIndex = (currentIndex + 1) % URLs.length;
+            // Set timer to load the next URL after ROTATION_INTERVAL
             setTimeout(rotatePages, ROTATION_INTERVAL);
         }
 
         // Start rotation when the page loads
+        window.onload = rotatePages;
+
+        // Function to fetch RSS feed and update the ticker
+        function fetchRSSFeed() {
+            const rssUrl = 'https://www.nrk.no/nyheter/siste.rss';
+            fetch(`https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`)
+                .then(response => response.json())
+                .then(data => {
+                    const items = data.items;
+                    const tickerContainer = document.getElementById('rssFeed');
+                    let tickerHTML = '<div class="news-ticker">';
+
+                    // Loop through the feed items and create the ticker
+                    items.forEach(item => {
+                        tickerHTML += `<span>${item.title} - </span>`;
+                    });
+
+                    tickerHTML += '</div>';
+                    tickerContainer.innerHTML = tickerHTML;
+                })
+                .catch(error => {
+                    console.error('Error fetching RSS feed:', error);
+                });
+        }
+
+        // Fetch RSS feed on load
         window.onload = function() {
-            updateDebugInfo(); // Initial update of debug info
-            rotatePages(); // Start the rotation
+            rotatePages();
+            fetchRSSFeed();  // Fetch RSS feed
         };
     </script>
+
 </head>
 <body>
-    <!-- Debug info will appear here -->
-    <div id="debug"></div>
-    
-    <!-- The iframe for rotating pages -->
-    <iframe id="webframe" frameborder="0"></iframe>
+    <!-- RSS Feed Display -->
+    <div id="rssFeed"></div>
 
-    <!-- Meteogram SVG container -->
-    <div id="meteogram-container">
-        <img id="meteogram" src="https://www.yr.no/nb/innhold/1-87761/meteogram.svg" alt="Yr.no Meteogram" />
-    </div>
+    <!-- Iframe for Rotating Pages -->
+    <iframe id="webframe"></iframe>
+
+    <!-- Visible copyright notice -->
+    <footer style="text-align: center; margin-top: 10px;">
+        <p>&copy; 2024 Your Name or Company</p>
+    </footer>
 </body>
 </html>
