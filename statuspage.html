@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+	<!-- 
+    	This page will rotate a Bane NOR fullscrenn train status of your selected railway station and a weather forecast from a selected location 
+   	Author: isten
+    	Date: 2024-11-05
+    	--->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rotating Pages</title>
+    <script>
+        const ROTATION_INTERVAL = 20000; // Time interval in milliseconds (30 seconds)
+	const urls = [
+            "https://rtd.banenor.no/web_client/std?station=JEH&layout=landscape&content=departure&notice=yes",   // Train status page
+            "https://www.yr.no/nb/v%C3%A6rvarsel/daglig-tabell/1-87761/Norge/Akershus/Ullensaker/Jessheim"         // Weather page
+        ];
+
+        let currentIndex = 0;
+
+        function rotatePages() {
+            // Set the src of the iframe to the current URL
+            document.getElementById('webframe').src = urls[currentIndex];
+            // Update index to the next URL
+            currentIndex = (currentIndex + 1) % urls.length;
+            // Set timer to load the next URL after n seconds - as defined in the constant ROTATION_INTERVAL
+            setTimeout(rotatePages, ROTATION_INTERVAL);
+        }
+
+        // Start rotation when the page loads
+        window.onload = rotatePages;
+    </script>
+</head>
+<body>
+    <iframe id="webframe" width="100%" height="100%" frameborder="0"></iframe>
+</body>
+</html>
