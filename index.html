@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-    <!-- 
-        Version: 6
+     <!-- 
+        Version: 7
         This page will rotate between a Bane NOR fullscreen train status of your selected railway station 
         and a Yr.no meteogram SVG for weather forecast.
         Author: isten
@@ -70,9 +69,6 @@
             setTimeout(rotatePages, ROTATION_INTERVAL);
         }
 
-        // Start rotation when the page loads
-        window.onload = rotatePages;
-
         // Function to fetch RSS feed and update the ticker
         function fetchRSSFeed() {
             const rssUrl = 'https://www.nrk.no/nyheter/siste.rss';
@@ -96,9 +92,9 @@
                 });
         }
 
-        // Fetch RSS feed on load
+        // Combine window.onload to ensure both RSS feed and page rotation work
         window.onload = function() {
-            rotatePages();
+            rotatePages();   // Start page rotation
             fetchRSSFeed();  // Fetch RSS feed
         };
     </script>
