@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <!-- 
+          Version: 11
+        This page will rotate between a Bane NOR fullscreen train status of your selected railway station 
+        and a Yr.no meteogram SVG for weather forecast. Additionally, it shows NRK news in a vertical section 
+        on the right side of the screen asynchronously.
+        Author: isten
+        Date: 2024-11-05
+    -->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rotating Pages with Meteogram and NRK News</title>
+
+    <style>
+        /* Styling for layout, dividing the page into two sections */
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Main content area for Bane NOR and Yr meteogram */
+        #main-content {
+            width: 70%; /* 70% of screen width */
+            position: relative;
+        }
+
+        /* News section on the right */
+        #news-section {
+            width: 30%; /* 30% of screen width */
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Styling for the iframe to fill the content area */
+        #webframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Styling for the meteogram container */
+        #meteogram-container {
+            display: none;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+        }
+
+        /* SVG will take up 100% of the available height */
+        #meteogram {
+            height: 100%;
+        }
+
+        /* Styling for individual news item */
+        .news-item {
+            margin-bottom: 20px;
+        }
+
+        .news-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .news-description {
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+    </style>
+
+    <script>
+        const ROTATION_INTERVAL = 20000; // Time interval in milliseconds (20 seconds)
+        const urls = [
+            "https://rtd.banenor.no/web_client/std?station=JEH&layout=landscape&content=departure&notice=yes",   // Train status page
+            "meteogram" // Placeholder to display the Yr.no meteogram SVG
+        ];
+
+        let currentIndex = 0;
+        let rotationCount = 0; // To count how many times the rotation has occurred
+        let newsIndex = 0; // To track the current news item being displayed
+
+        // Function to update the main content rotation
+        function rotatePages() {
+            if (urls[currentIndex] === "meteogram") {
+                document.getElementById('webframe').style.display = 'none';
+                document.getElementById('meteogram-container').style.display = 'block';
+            } else {
+                document.getElementById('meteogram-container').style.display = 'none';
+                document.getElementById('webframe').style.display = 'block';
+                document.getElementById('webframe').src = urls[currentIndex];
+            }
+
+            rotationCount++;
+            currentIndex = (currentIndex + 1) % urls.length;
+            setTimeout(rotatePages, ROTATION_INTERVAL);
+        }
+
+        // Function to update the news section
+        function updateNews(items) {
+            const newsSection = document.getElementById('news-section');
+            const item = items[newsIndex];
+
+            newsSection.innerHTML = `
+                <div class="news-item">
+                    <div class="news-title">${item.title}</div>
+                    <div class="news-description">${item.description}</div>
+                </div>
+            `;
+
+            newsIndex = (newsIndex + 1) % items.length; // Move to the next news item
+            setTimeout(() => updateNews(items), 10000); // Change news every 10 seconds
+        }
+
+        // Function to fetch RSS feed asynchronously
+        async function fetchRSSFeed() {
+            try {
+                const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.nrk.no/nyheter/siste.rss');
+                const data = await response.json();
+                const items = data.items;
+                updateNews(items); // Start updating news after fetching
+            } catch (error) {
+                console.error('Error fetching RSS feed:', error);
+            }
+        }
+
+        // Start rotation and fetch RSS when the page loads
+        window.onload = function() {
+            rotatePages(); // Start the main content rotation
+            fetchRSSFeed(); // Fetch the RSS feed asynchronously
+        };
+    </script>
+</head>
+<body>
+    <!-- Main content area for rotating Bane NOR and meteogram -->
+    <div id="main-content">
+        <iframe id="webframe"></iframe>
+
+        <!-- Meteogram SVG container -->
+        <div id="meteogram-container">
+            <img id="meteogram" src="https://www.yr.no/nb/innhold/1-87761/meteogram.svg" alt="Yr.no Meteogram" />
+        </div>
+    </div>
+
+    <!-- News section -->
+    <div id="news-section">
+        Loading news...
+    </div>
+
+</body>
+</html>
