@@ -3,10 +3,10 @@
 <head>
 
     <!-- 
-          Version: 12
+          Version: 13
         This page will rotate between a Bane NOR fullscreen train status of your selected railway station 
         and a Yr.no meteogram SVG for weather forecast. Additionally, it shows NRK news in a vertical section 
-        on the right side of the screen asynchronously.
+        on the right side of the screen asynchronously. It compensates for a 5% left margin on the screen.
         Author: isten
         Date: 2024-11-05
     -->
@@ -23,11 +23,12 @@
             display: flex;
             height: 100vh;
             font-family: Arial, sans-serif;
+            margin-left: 5%; /* Compensate for TV cropping the left 5% */
         }
 
         /* Main content area for Bane NOR and Yr meteogram */
         #main-content {
-            width: 70%; /* 70% of screen width */
+            width: 65%; /* 70% width minus the 5% left margin */
             position: relative;
             overflow: hidden; /* Ensure content stays within the frame */
         }
