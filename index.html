@@ -3,17 +3,16 @@
 <head>
 
     <!-- 
-        version 4
-    
-        This page will rotate a Bane NOR fullscreen train status of your selected railway station 
-        and a weather forecast from a selected location, with debug information.
+        Version: 5
+        This page will rotate between a Bane NOR fullscreen train status of your selected railway station 
+        and a Yr.no meteogram SVG for weather forecast.
         Author: isten
         Date: 2024-11-05
     -->
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rotating Pages (Debug Mode)</title>
+    <title>Rotating Pages with Meteogram</title>
     <style>
         /* Styling for the debug information at the top */
         #debug {
@@ -38,12 +37,28 @@
             width: 100%;
             height: 90%; /* Bottom 90% of the screen */
         }
+
+        /* Styling for the meteogram container */
+        #meteogram-container {
+            display: none;
+            position: absolute;
+            top: 10%; /* Start below the debug section */
+            left: 0;
+            width: 100%;
+            height: 90%; /* Bottom 90% of the screen */
+            text-align: center;
+        }
+
+        /* SVG will take up 100% of the available height */
+        #meteogram {
+            height: 100%;
+        }
     </style>
     <script>
         const ROTATION_INTERVAL = 20000; // Time interval in milliseconds (20 seconds)
         const urls = [
             "https://rtd.banenor.no/web_client/std?station=JEH&layout=landscape&content=departure&notice=yes",   // Train status page
-            "https://www.yr.no/nb/v%C3%A6rvarsel/daglig-tabell/1-87761/Norge/Akershus/Ullensaker/Jessheim"       // Weather page
+            "meteogram" // Placeholder to display the meteogram SVG
         ];
 
         let currentIndex = 0;
@@ -51,18 +66,29 @@
 
         function updateDebugInfo() {
             const debugElement = document.getElementById('debug');
-            debugElement.innerHTML = `Rotation Count: ${rotationCount} | Current URL: ${urls[currentIndex]}`;
+            debugElement.innerHTML = `Rotation Count: ${rotationCount} | Current Display: ${currentIndex === 1 ? 'Yr.no Meteogram' : urls[currentIndex]}`;
         }
 
         function rotatePages() {
-            // Set the src of the iframe to the current URL
-            document.getElementById('webframe').src = urls[currentIndex];
+            if (urls[currentIndex] === "meteogram") {
+                // Show the meteogram SVG
+                document.getElementById('webframe').style.display = 'none';
+                document.getElementById('meteogram-container').style.display = 'block';
+            } else {
+                // Show the train status iframe
+                document.getElementById('meteogram-container').style.display = 'none';
+                document.getElementById('webframe').style.display = 'block';
+                document.getElementById('webframe').src = urls[currentIndex];
+            }
+
             // Update debug info
             rotationCount++;
             updateDebugInfo();
+
             // Update index to the next URL
             currentIndex = (currentIndex + 1) % urls.length;
-            // Set timer to load the next URL after ROTATION_INTERVAL
+
+            // Set timer to load the next content after ROTATION_INTERVAL
             setTimeout(rotatePages, ROTATION_INTERVAL);
         }
 
@@ -79,5 +105,10 @@
     
     <!-- The iframe for rotating pages -->
     <iframe id="webframe" frameborder="0"></iframe>
+
+    <!-- Meteogram SVG container -->
+    <div id="meteogram-container">
+        <img id="meteogram" src="https://www.yr.no/nb/innhold/1-87761/meteogram.svg" alt="Yr.no Meteogram" />
+    </div>
 </body>
 </html>
