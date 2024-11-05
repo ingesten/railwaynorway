@@ -3,10 +3,10 @@
 <head>
 
     <!-- 
-          Version: 13
+          Version: 14
         This page will rotate between a Bane NOR fullscreen train status of your selected railway station 
         and a Yr.no meteogram SVG for weather forecast. Additionally, it shows NRK news in a vertical section 
-        on the right side of the screen asynchronously. It compensates for a 5% left margin on the screen.
+        on the right side of the screen asynchronously. It adds a black background to the left 5% padding.
         Author: isten
         Date: 2024-11-05
     -->
@@ -23,14 +23,23 @@
             display: flex;
             height: 100vh;
             font-family: Arial, sans-serif;
-            margin-left: 5%; /* Compensate for TV cropping the left 5% */
+            background-color: black; /* Set background color for the entire page */
+        }
+
+        /* Main container with padding to create the left column effect */
+        #main-container {
+            display: flex;
+            width: 100%;
+            padding-left: 5%; /* Create a 5% padding on the left */
+            background-color: black; /* Black background for the 5% area */
         }
 
         /* Main content area for Bane NOR and Yr meteogram */
         #main-content {
-            width: 65%; /* 70% width minus the 5% left margin */
+            width: 65%; /* 70% width minus the 5% left padding */
             position: relative;
             overflow: hidden; /* Ensure content stays within the frame */
+            background-color: white; /* Optional: Change if you want a white background for main content */
         }
 
         /* News section on the right */
@@ -148,20 +157,21 @@
     </script>
 </head>
 <body>
-    <!-- Main content area for rotating Bane NOR and meteogram -->
-    <div id="main-content">
-        <iframe id="webframe"></iframe>
+    <div id="main-container">
+        <!-- Main content area for rotating Bane NOR and meteogram -->
+        <div id="main-content">
+            <iframe id="webframe"></iframe>
 
-        <!-- Meteogram SVG container -->
-        <div id="meteogram-container">
-            <img id="meteogram" src="https://www.yr.no/nb/innhold/1-87761/meteogram.svg" alt="Yr.no Meteogram" />
+            <!-- Meteogram SVG container -->
+            <div id="meteogram-container">
+                <img id="meteogram" src="https://www.yr.no/nb/innhold/1-87761/meteogram.svg?mode=dark" alt="Yr.no Meteogram" />
+            </div>
+        </div>
+
+        <!-- News section -->
+        <div id="news-section">
+            Loading news...
         </div>
     </div>
-
-    <!-- News section -->
-    <div id="news-section">
-        Loading news...
-    </div>
-
 </body>
 </html>
