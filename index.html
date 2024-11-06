@@ -3,7 +3,7 @@
 <head>
 
     <!-- 
-          Version: 19
+          Version: 20
         This page will rotate between a Bane NOR fullscreen train status of your selected railway station 
         and a Yr.no meteogram SVG for weather forecast in dark mode. Additionally, it shows NRK news in a vertical section 
         on the right side of the screen asynchronously. It dynamically adjusts news display time based on description length.
@@ -90,7 +90,8 @@
         const ROTATION_INTERVAL = 20000; 
         const urls = [
             "https://rtd.banenor.no/web_client/std?station=JEH&layout=landscape&content=departure&notice=yes",
-            "meteogram"
+            "meteogram",
+            "https://rtd.banenor.no/web_client/std?station=JEH&content=track&header=no&notice=yes&track=1"
         ];
 
         let currentIndex = 0;
