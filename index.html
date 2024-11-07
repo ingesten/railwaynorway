@@ -3,12 +3,13 @@
 <head>
 
     <!-- 
-          Version: 20
+          Version: 19
         This page will rotate between a Bane NOR fullscreen train status of your selected railway station 
         and a Yr.no meteogram SVG for weather forecast in dark mode. Additionally, it shows NRK news in a vertical section 
         on the right side of the screen asynchronously. It dynamically adjusts news display time based on description length.
+        NRK news includes proper attribution and direct links to NRK as per their guidelines.
         Author: isten
-        Date: 2024-11-06
+        Date: 2024-11-05
     -->
 
     <meta charset="UTF-8">
@@ -36,7 +37,7 @@
             width: 65%; 
             position: relative;
             overflow: hidden;
-            background-color: black; /* changed background color for main content to black */ 
+            background-color: black; 
         }
 
         #news-section {
@@ -84,14 +85,30 @@
             margin-top: 10px;
         }
 
+        .news-source {
+            margin-top: 10px;
+            font-size: 12px;
+            font-style: italic;
+            color: lightgray;
+        }
+
+        a {
+            color: lightblue;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
     </style>
 
     <script>
         const ROTATION_INTERVAL = 20000; 
         const urls = [
-            "https://rtd.banenor.no/web_client/std?station=JEH&layout=landscape&content=departure&notice=yes",
-            "meteogram",
-            "https://rtd.banenor.no/web_client/std?station=JEH&content=track&header=no&notice=yes&track=1"
+            { url: "https://rtd.banenor.no/web_client/std?station=JEH&layout=landscape&content=departure&notice=yes", duration: 20000 },
+            { url: "meteogram", duration: 30000 },
+            { url: "https://www.vg.no", duration: 15000 }
         ];
 
         let currentIndex = 0;
@@ -100,26 +117,29 @@
 
         // Function to calculate dynamic display time based on description length
         function calculateDisplayTime(description) {
-            const baseTime = 5000; // Base time of 5 seconds
-            const charsPerSecond = 35; // Adjusted reading speed: 35 characters per second
+            const baseTime = 5000; 
+            const charsPerSecond = 35; 
             const additionalTime = (description ? description.length : 0) / charsPerSecond * 1000;
             return baseTime + additionalTime; 
         }
 
         function rotatePages() {
-            if (urls[currentIndex] === "meteogram") {
+            const currentPage = urls[currentIndex];
+
+            if (currentPage.url === "meteogram") {
                 document.getElementById('webframe').style.display = 'none';
                 document.getElementById('meteogram-container').style.display = 'block';
             } else {
                 document.getElementById('meteogram-container').style.display = 'none';
                 document.getElementById('webframe').style.display = 'block';
-                document.getElementById('webframe').src = urls[currentIndex];
+                document.getElementById('webframe').src = currentPage.url;
             }
 
-            console.log(`Rotating to: ${urls[currentIndex]} (Rotation Count: ${rotationCount + 1})`);
+            console.log(`Rotating to: ${currentPage.url} (Duration: ${currentPage.duration / 1000} seconds)`);
+
             rotationCount++;
             currentIndex = (currentIndex + 1) % urls.length;
-            setTimeout(rotatePages, ROTATION_INTERVAL);
+            setTimeout(rotatePages, currentPage.duration);
         }
 
         function updateNews(items) {
@@ -128,8 +148,9 @@
 
             newsSection.innerHTML = `
                 <div class="news-item">
-                    <div class="news-title">${item.title}</div>
+                    <a href="${item.link}" target="_blank" class="news-title">${item.title}</a>
                     <div class="news-description">${item.description || "No description available."}</div>
+                    <div class="news-source">Kilde: <a href="https://www.nrk.no" target="_blank">NRK Nyheter</a></div>
                 </div>
             `;
 
