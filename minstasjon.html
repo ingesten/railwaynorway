@@ -6,7 +6,7 @@
     <title>Get Location and Nearest Station</title>
 </head>
 <body>
-    <h1>v4 Find the Nearest Station</h1>
+    <h1>v5 Find the Nearest Station</h1>
     <button onclick="getLocation()">Get My Location</button>
 
     <p id="location-status">Click the button to retrieve your location.</p>
@@ -67,8 +67,10 @@
             body: JSON.stringify({ query })
         });
 
+        console.log('HTTP Status:', response.status); // Logg statuskoden
+
         const data = await response.json();
-        console.log('Full API response:', data);
+        console.log('Full API response:', data); // Logg hele API-responsen
 
         if (data.errors) {
             console.error('API returned errors:', data.errors);
