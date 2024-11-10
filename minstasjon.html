@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Location</title>
+</head>
+<body>
+    <h1>Lokasjonsdata fra Nettleseren</h1>
+    <button onclick="getLocation()">Hent min posisjon</button>
+
+    <p id="location-status">Klikk på knappen for å hente posisjonen din.</p>
+    <p><strong>Breddegrad:</strong> <span id="latitude"></span></p>
+    <p><strong>Lengdegrad:</strong> <span id="longitude"></span></p>
+
+    <script>
+        function getLocation() {
+            const statusElement = document.getElementById('location-status');
+            const latitudeElement = document.getElementById('latitude');
+            const longitudeElement = document.getElementById('longitude');
+
+            if (navigator.geolocation) {
+                statusElement.textContent = "Henter posisjon...";
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        statusElement.textContent = "Posisjon hentet!";
+                        latitudeElement.textContent = position.coords.latitude;
+                        longitudeElement.textContent = position.coords.longitude;
+                    },
+                    (error) => {
+                        statusElement.textContent = "Kunne ikke hente posisjon: " + error.message;
+                    }
+                );
+            } else {
+                statusElement.textContent = "Geolocation er ikke støttet av nettleseren din.";
+            }
+        }
+    </script>
+</body>
+</html>
