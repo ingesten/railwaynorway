@@ -6,7 +6,7 @@
     <title>Get Location and Nearest Station</title>
 </head>
 <body>
-    <h1>v3 Find the Nearest Station</h1>
+    <h1>v4 Find the Nearest Station</h1>
     <button onclick="getLocation()">Get My Location</button>
 
     <p id="location-status">Click the button to retrieve your location.</p>
@@ -46,13 +46,13 @@
       async function findNearestStation(latitude, longitude) {
     const query = `
     {
-      stopPlaces(
-        filterByPlaceType: [STOP_PLACE]
-        coordinatesWithinBox: { minLat: ${latitude - 0.1}, minLon: ${longitude - 0.1}, maxLat: ${latitude + 0.1}, maxLon: ${longitude + 0.1} }
-      ) {
+      quaysByPosition(lat: ${latitude}, lon: ${longitude}, maximumDistance: 5000) {
         id
         name
-        description
+        stopPlace {
+          id
+          name
+        }
       }
     }
     `;
@@ -76,9 +76,9 @@
             return;
         }
 
-        if (data.data && data.data.stopPlaces.length > 0) {
-            const station = data.data.stopPlaces[0];
-            document.getElementById('nearest-station').textContent = `${station.name} (${station.description || 'No description'})`;
+        if (data.data && data.data.quaysByPosition.length > 0) {
+            const station = data.data.quaysByPosition[0].stopPlace;
+            document.getElementById('nearest-station').textContent = `${station.name}`;
         } else {
             document.getElementById('nearest-station').textContent = "No station found nearby.";
         }
@@ -87,7 +87,6 @@
         document.getElementById('nearest-station').textContent = "Error fetching station: " + error.message;
     }
 }
-
     </script>
 </body>
 </html>
