@@ -6,7 +6,7 @@
     <title>Get Location and Nearest Station</title>
 </head>
 <body>
-    <h1>v8 Find the Nearest Station</h1>
+    <h1>v9 Find the Nearest Station</h1>
     <button onclick="getLocation()">Get My Location</button>
 
     <p id="location-status">Click the button to retrieve your location.</p>
@@ -43,15 +43,22 @@
             }
         }
 
-        async function findNearestStation(latitude, longitude) {
+   async function findNearestStation(latitude, longitude) {
     const query = `
-    {
-      stopPlacesByRadius(lat: ${latitude}, lon: ${longitude}, radius: 5000) {
-        stopPlace {
-          id
-          name
+    query MyQuery {
+      nearest(latitude: ${latitude}, longitude: ${longitude}) {
+        edges {
+          node {
+            id
+            distance
+            place {
+              __typename
+              ... on StopPlace {
+                name
+              }
+            }
+          }
         }
-        distance
       }
     }
     `;
@@ -66,24 +73,24 @@
             body: JSON.stringify({ query })
         });
 
-        console.log('HTTP Status:', response.status); // Logg statuskoden
-
+        console.log('HTTP Status:', response.status); // Log statuskoden
         const data = await response.json();
-        console.log('Full API response:', data); // Logg hele API-responsen
+        console.log('Full API response:', data); // Log hele responsen
 
         if (data.errors) {
             console.error('API returned errors:', data.errors);
-            data.errors.forEach(error => console.log('Error details:', error.message));
             document.getElementById('nearest-station').textContent = "API error occurred. Check console.";
             return;
         }
 
-        if (data.data && data.data.stopPlacesByRadius.length > 0) {
-            const station = data.data.stopPlacesByRadius[0].stopPlace;
-            const distance = data.data.stopPlacesByRadius[0].distance;
-            document.getElementById('nearest-station').textContent = `${station.name} (${distance} meters away)`;
+        const nearestEdges = data.data.nearest.edges;
+        const stopPlaces = nearestEdges.filter(edge => edge.node.place.__typename === "StopPlace");
+
+        if (stopPlaces.length > 0) {
+            const nearestStop = stopPlaces[0].node;
+            document.getElementById('nearest-station').textContent = `${nearestStop.place.name} (${nearestStop.distance.toFixed(1)} meters away)`;
         } else {
-            document.getElementById('nearest-station').textContent = "No station found nearby.";
+            document.getElementById('nearest-station').textContent = "No nearby stations found.";
         }
     } catch (error) {
         console.error('Fetch error:', error);
