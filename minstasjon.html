@@ -6,7 +6,7 @@
     <title>Get Location and Nearest Station</title>
 </head>
 <body>
-    <h1>v7 Find the Nearest Station</h1>
+    <h1>v8 Find the Nearest Station</h1>
     <button onclick="getLocation()">Get My Location</button>
 
     <p id="location-status">Click the button to retrieve your location.</p>
@@ -44,52 +44,53 @@
         }
 
         async function findNearestStation(latitude, longitude) {
-            const query = `
-            {
-              quaysByPosition(lat: ${latitude}, lon: ${longitude}, maximumDistance: 5000) {
-                id
-                name
-                stopPlace {
-                  id
-                  name
-                }
-              }
-            }
-            `;
-
-            try {
-                const response = await fetch('https://api.entur.io/journey-planner/v3/graphql', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'ET-Client-Name': 'personalproject-locationservices'
-                    },
-                    body: JSON.stringify({ query })
-                });
-
-                console.log('HTTP Status:', response.status); // Logg statuskoden
-
-                const data = await response.json();
-                console.log('Full API response:', data); // Logg hele API-responsen
-
-                if (data.errors) {
-                    console.error('API returned errors:', data.errors);
-                    data.errors.forEach(error => console.log('Error details:', error.message));
-                    document.getElementById('nearest-station').textContent = "API error occurred. Check console.";
-                    return;
-                }
-
-                if (data.data && data.data.quaysByPosition.length > 0) {
-                    const station = data.data.quaysByPosition[0].stopPlace;
-                    document.getElementById('nearest-station').textContent = `${station.name}`;
-                } else {
-                    document.getElementById('nearest-station').textContent = "No station found nearby.";
-                }
-            } catch (error) {
-                console.error('Fetch error:', error);
-                document.getElementById('nearest-station').textContent = "Error fetching station: " + error.message;
-            }
+    const query = `
+    {
+      stopPlacesByRadius(lat: ${latitude}, lon: ${longitude}, radius: 5000) {
+        stopPlace {
+          id
+          name
         }
+        distance
+      }
+    }
+    `;
+
+    try {
+        const response = await fetch('https://api.entur.io/journey-planner/v3/graphql', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'ET-Client-Name': 'personalproject-locationservices'
+            },
+            body: JSON.stringify({ query })
+        });
+
+        console.log('HTTP Status:', response.status); // Logg statuskoden
+
+        const data = await response.json();
+        console.log('Full API response:', data); // Logg hele API-responsen
+
+        if (data.errors) {
+            console.error('API returned errors:', data.errors);
+            data.errors.forEach(error => console.log('Error details:', error.message));
+            document.getElementById('nearest-station').textContent = "API error occurred. Check console.";
+            return;
+        }
+
+        if (data.data && data.data.stopPlacesByRadius.length > 0) {
+            const station = data.data.stopPlacesByRadius[0].stopPlace;
+            const distance = data.data.stopPlacesByRadius[0].distance;
+            document.getElementById('nearest-station').textContent = `${station.name} (${distance} meters away)`;
+        } else {
+            document.getElementById('nearest-station').textContent = "No station found nearby.";
+        }
+    } catch (error) {
+        console.error('Fetch error:', error);
+        document.getElementById('nearest-station').textContent = "Error fetching station: " + error.message;
+    }
+}
+
     </script>
 </body>
 </html>
