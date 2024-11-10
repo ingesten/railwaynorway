@@ -6,7 +6,7 @@
     <title>Get Location and Nearest Station</title>
 </head>
 <body>
-    <h1>v2 Find the Nearest Station</h1>
+    <h1>v3 Find the Nearest Station</h1>
     <button onclick="getLocation()">Get My Location</button>
 
     <p id="location-status">Click the button to retrieve your location.</p>
@@ -43,15 +43,18 @@
             }
         }
 
-       async function findNearestStation(latitude, longitude) {
+      async function findNearestStation(latitude, longitude) {
     const query = `
-        {
-            stopPlacesByPosition(lat: ${latitude}, lon: ${longitude}, maximumDistance: 5000, first: 1) {
-                id
-                name
-                distance
-            }
-        }
+    {
+      stopPlaces(
+        filterByPlaceType: [STOP_PLACE]
+        coordinatesWithinBox: { minLat: ${latitude - 0.1}, minLon: ${longitude - 0.1}, maxLat: ${latitude + 0.1}, maxLon: ${longitude + 0.1} }
+      ) {
+        id
+        name
+        description
+      }
+    }
     `;
 
     try {
@@ -59,26 +62,28 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'ET-Client-Name': 'personalproject-locationservices' // Custom client identifier
+                'ET-Client-Name': 'personalproject-locationservices'
             },
             body: JSON.stringify({ query })
         });
 
         const data = await response.json();
-        console.log('Full API response:', data); // Log entire response
+        console.log('Full API response:', data);
 
-        if (data.data && data.data.stopPlacesByPosition) {
-            const station = data.data.stopPlacesByPosition[0];
-            if (station) {
-                document.getElementById('nearest-station').textContent = `${station.name} (${station.distance} meters away)`;
-            } else {
-                document.getElementById('nearest-station').textContent = "No station found nearby.";
-            }
+        if (data.errors) {
+            console.error('API returned errors:', data.errors);
+            document.getElementById('nearest-station').textContent = "API error occurred. Check console.";
+            return;
+        }
+
+        if (data.data && data.data.stopPlaces.length > 0) {
+            const station = data.data.stopPlaces[0];
+            document.getElementById('nearest-station').textContent = `${station.name} (${station.description || 'No description'})`;
         } else {
-            document.getElementById('nearest-station').textContent = "No data returned from API.";
+            document.getElementById('nearest-station').textContent = "No station found nearby.";
         }
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Fetch error:', error);
         document.getElementById('nearest-station').textContent = "Error fetching station: " + error.message;
     }
 }
