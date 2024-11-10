@@ -6,7 +6,7 @@
     <title>Get Location and Nearest Station</title>
 </head>
 <body>
-    <h1>v9 Find the Nearest Station</h1>
+    <h1>v10 Find the Nearest Station</h1>
     <button onclick="getLocation()">Get My Location</button>
 
     <p id="location-status">Click the button to retrieve your location.</p>
@@ -43,10 +43,10 @@
             }
         }
 
-   async function findNearestStation(latitude, longitude) {
+  async function findNearestStations(latitude, longitude) {
     const query = `
     query MyQuery {
-      nearest(latitude: ${latitude}, longitude: ${longitude}) {
+      nearest(latitude: ${latitude}, longitude: ${longitude}, first: 5) {
         edges {
           node {
             id
@@ -55,6 +55,7 @@
               __typename
               ... on StopPlace {
                 name
+                transportModes
               }
             }
           }
@@ -73,9 +74,8 @@
             body: JSON.stringify({ query })
         });
 
-        console.log('HTTP Status:', response.status); // Log statuskoden
         const data = await response.json();
-        console.log('Full API response:', data); // Log hele responsen
+        console.log('Full API response:', data);
 
         if (data.errors) {
             console.error('API returned errors:', data.errors);
@@ -87,8 +87,14 @@
         const stopPlaces = nearestEdges.filter(edge => edge.node.place.__typename === "StopPlace");
 
         if (stopPlaces.length > 0) {
-            const nearestStop = stopPlaces[0].node;
-            document.getElementById('nearest-station').textContent = `${nearestStop.place.name} (${nearestStop.distance.toFixed(1)} meters away)`;
+            const stationList = stopPlaces.map(stop => {
+                const station = stop.node.place;
+                const distance = stop.node.distance.toFixed(1);
+                const transportModes = station.transportModes ? station.transportModes.join(", ") : "No transport info";
+                return `<li>${station.name} (${distance} meters away) - Modes: ${transportModes}</li>`;
+            }).join("");
+
+            document.getElementById('nearest-station').innerHTML = `<ul>${stationList}</ul>`;
         } else {
             document.getElementById('nearest-station').textContent = "No nearby stations found.";
         }
@@ -97,6 +103,7 @@
         document.getElementById('nearest-station').textContent = "Error fetching station: " + error.message;
     }
 }
+
 
     </script>
 </body>
