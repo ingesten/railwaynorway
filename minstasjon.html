@@ -6,7 +6,7 @@
     <title>Get Location and Nearest Station</title>
 </head>
 <body>
-    <h1>v5 Find the Nearest Station</h1>
+    <h1>v6 Find the Nearest Station</h1>
     <button onclick="getLocation()">Get My Location</button>
 
     <p id="location-status">Click the button to retrieve your location.</p>
@@ -73,9 +73,12 @@
         console.log('Full API response:', data); // Logg hele API-responsen
 
         if (data.errors) {
-            console.error('API returned errors:', data.errors);
-            document.getElementById('nearest-station').textContent = "API error occurred. Check console.";
-            return;
+    console.error('API returned errors:', data.errors);
+    data.errors.forEach(error => console.log('Error details:', error.message));
+    document.getElementById('nearest-station').textContent = "API error occurred. Check console.";
+    return;
+}
+
         }
 
         if (data.data && data.data.quaysByPosition.length > 0) {
