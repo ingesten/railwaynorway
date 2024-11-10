@@ -3,104 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Get Location and Nearest Station</title>
+    <title>Nearest Stations</title>
 </head>
 <body>
-    <h1>v10 Find the Nearest Station</h1>
+    <h1>v12 Find the Nearest Stations</h1>
     <button onclick="getLocation()">Get My Location</button>
 
     <p id="location-status">Click the button to retrieve your location.</p>
     <p><strong>Latitude:</strong> <span id="latitude"></span></p>
     <p><strong>Longitude:</strong> <span id="longitude"></span></p>
-    <h2>Nearest Station:</h2>
+    <h2>Nearest Stations:</h2>
     <p id="nearest-station">No station found yet.</p>
 
     <script>
-        function getLocation() {
-            const statusElement = document.getElementById('location-status');
-            const latitudeElement = document.getElementById('latitude');
-            const longitudeElement = document.getElementById('longitude');
-            const stationElement = document.getElementById('nearest-station');
+        // Lim inn de oppdaterte funksjonene her
+    </script>
+</body>
+</html>
 
-            if (navigator.geolocation) {
-                statusElement.textContent = "Retrieving location...";
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        statusElement.textContent = "Location retrieved!";
-                        const latitude = position.coords.latitude;
-                        const longitude = position.coords.longitude;
-                        latitudeElement.textContent = latitude;
-                        longitudeElement.textContent = longitude;
+       function getLocation() {
+    const statusElement = document.getElementById('location-status');
+    const latitudeElement = document.getElementById('latitude');
+    const longitudeElement = document.getElementById('longitude');
 
-                        findNearestStation(latitude, longitude);
-                    },
-                    (error) => {
-                        statusElement.textContent = "Could not retrieve location: " + error.message;
-                    }
-                );
-            } else {
-                statusElement.textContent = "Geolocation is not supported by your browser.";
-            }
-        }
+    if (navigator.geolocation) {
+        statusElement.textContent = "Retrieving location...";
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                statusElement.textContent = "Location retrieved!";
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+                latitudeElement.textContent = latitude;
+                longitudeElement.textContent = longitude;
 
-  async function findNearestStations(latitude, longitude) {
-    const query = `
-    query MyQuery {
-      nearest(latitude: ${latitude}, longitude: ${longitude}, first: 5) {
-        edges {
-          node {
-            id
-            distance
-            place {
-              __typename
-              ... on StopPlace {
-                name
-                transportModes
-              }
-            }
-          }
-        }
-      }
-    }
-    `;
-
-    try {
-        const response = await fetch('https://api.entur.io/journey-planner/v3/graphql', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'ET-Client-Name': 'personalproject-locationservices'
+                findNearestStations(latitude, longitude); // Kall oppdatert funksjon
             },
-            body: JSON.stringify({ query })
-        });
+            (error) => {
+                statusElement.textContent = "Could not retrieve location: " + error.message;
+            }
+        );
+    } else {
+        statusElement.textContent = "Geolocation is not supported by your browser.";
+    }
+}
 
-        const data = await response.json();
-        console.log('Full API response:', data);
+ function getLocation() {
+    const statusElement = document.getElementById('location-status');
+    const latitudeElement = document.getElementById('latitude');
+    const longitudeElement = document.getElementById('longitude');
 
-        if (data.errors) {
-            console.error('API returned errors:', data.errors);
-            document.getElementById('nearest-station').textContent = "API error occurred. Check console.";
-            return;
-        }
+    if (navigator.geolocation) {
+        statusElement.textContent = "Retrieving location...";
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                statusElement.textContent = "Location retrieved!";
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+                latitudeElement.textContent = latitude;
+                longitudeElement.textContent = longitude;
 
-        const nearestEdges = data.data.nearest.edges;
-        const stopPlaces = nearestEdges.filter(edge => edge.node.place.__typename === "StopPlace");
-
-        if (stopPlaces.length > 0) {
-            const stationList = stopPlaces.map(stop => {
-                const station = stop.node.place;
-                const distance = stop.node.distance.toFixed(1);
-                const transportModes = station.transportModes ? station.transportModes.join(", ") : "No transport info";
-                return `<li>${station.name} (${distance} meters away) - Modes: ${transportModes}</li>`;
-            }).join("");
-
-            document.getElementById('nearest-station').innerHTML = `<ul>${stationList}</ul>`;
-        } else {
-            document.getElementById('nearest-station').textContent = "No nearby stations found.";
-        }
-    } catch (error) {
-        console.error('Fetch error:', error);
-        document.getElementById('nearest-station').textContent = "Error fetching station: " + error.message;
+                findNearestStations(latitude, longitude); // Kall oppdatert funksjon
+            },
+            (error) => {
+                statusElement.textContent = "Could not retrieve location: " + error.message;
+            }
+        );
+    } else {
+        statusElement.textContent = "Geolocation is not supported by your browser.";
     }
 }
 
