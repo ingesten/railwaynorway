@@ -75,7 +75,18 @@
     .progress {
       height: 100%;
       border-radius: 8px;
-      background-color: #4CAF50;
+    }
+
+    .progress.low {
+      background-color: #f44336; /* Red for <40% */
+    }
+
+    .progress.medium {
+      background-color: #ff9800; /* Orange for 40%-70% */
+    }
+
+    .progress.high {
+      background-color: #4CAF50; /* Green for >70% */
     }
 
     footer {
@@ -112,42 +123,42 @@
       <div class="category-card">
         <h3>Energiytelse</h3>
         <div class="progress-bar">
-          <div class="progress" style="width: 85%;"></div>
+          <div class="progress high" style="width: 85%;"></div>
         </div>
         <p>85% Compliance</p>
       </div>
       <div class="category-card">
         <h3>Helse og velvære</h3>
         <div class="progress-bar">
-          <div class="progress" style="width: 90%;"></div>
+          <div class="progress high" style="width: 90%;"></div>
         </div>
         <p>90% Compliance</p>
       </div>
       <div class="category-card">
         <h3>Materialvalg</h3>
         <div class="progress-bar">
-          <div class="progress" style="width: 95%;"></div>
+          <div class="progress high" style="width: 95%;"></div>
         </div>
         <p>95% Compliance</p>
       </div>
       <div class="category-card">
         <h3>Vannforbruk</h3>
         <div class="progress-bar">
-          <div class="progress" style="width: 50%;"></div>
+          <div class="progress medium" style="width: 50%;"></div>
         </div>
         <p>50% Compliance</p>
       </div>
       <div class="category-card">
         <h3>Transport</h3>
         <div class="progress-bar">
-          <div class="progress" style="width: 80%;"></div>
+          <div class="progress medium" style="width: 80%;"></div>
         </div>
         <p>80% Compliance</p>
       </div>
       <div class="category-card">
         <h3>Biodiversitet</h3>
         <div class="progress-bar">
-          <div class="progress" style="width: 70%;"></div>
+          <div class="progress medium" style="width: 70%;"></div>
         </div>
         <p>70% Compliance</p>
       </div>
@@ -156,6 +167,7 @@
 
   <footer>
     <p>BREEAM-NOR Dashboard © 2025</p>
+    <p>v2</p>
   </footer>
 </body>
 </html>
