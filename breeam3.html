@@ -42,25 +42,27 @@
     </div>
   </header>
 
-  <main class="container mx-auto px-4 py-8">
-    <div class="bg-white rounded-xl shadow-lg mb-8 transform hover:shadow-xl transition-all duration-200">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-8">
-        <div class="text-center">
-          <h2 class="text-xl font-semibold mb-2 text-gray-700">Total BREEAM Score</h2>
-          <p class="text-5xl font-bold text-emerald-600">72%</p>
-          <p class="text-gray-500 mt-2">Level: Excellent</p>
-        </div>
-        <div class="text-center cursor-pointer" id="buildingCard" onclick="toggleBuildingList()">
-          <h2 class="text-xl font-semibold mb-2 text-gray-700">Antall Bygg</h2>
-          <p class="text-5xl font-bold text-gray-800">5</p>
-          <p class="text-emerald-600 mt-2">Klikk for detaljer →</p>
-        </div>
-        <div class="text-center">
-          <h2 class="text-xl font-semibold mb-2 text-gray-700">Compliance Status</h2>
-          <p class="text-5xl font-bold text-emerald-600">80%</p>
-          <p class="text-gray-500 mt-2">Oppnådd</p>
-        </div>
-      </div>
+<div class="container mx-auto px-4 py-8">
+  <div class="bg-white rounded-xl shadow-lg mb-6 p-6">
+    <h2 class="text-lg font-semibold text-gray-700 mb-4">Filtrer etter compliance-nivå</h2>
+    <div class="flex items-center gap-4">
+      <label for="complianceSlider" class="text-gray-600">Vis verdier under:</label>
+      <input 
+        id="complianceSlider" 
+        type="range" 
+        min="0" 
+        max="100" 
+        value="100" 
+        class="slider w-full" 
+        oninput="updateSliderValue(this.value)" 
+        onchange="filterCategories(this.value)"
+      />
+      <span id="sliderValue" class="text-gray-800 font-bold">100%</span>
+    </div>
+  </div>
+
+  <div id="categories-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+</div>
 
       <!-- Building List -->
       <div class="building-list border-t" id="buildingList">
