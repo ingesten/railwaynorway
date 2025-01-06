@@ -1,0 +1,281 @@
+
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BREEAM Status Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .dragging { opacity: 0.5; }
+    .category-card { 
+      transition: all 0.2s;
+      cursor: move;
+    }
+    .category-card:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    .progress-bar {
+      transition: width 0.5s ease-in-out;
+    }
+    .building-list {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+    .building-list.expanded {
+      max-height: 500px;
+    }
+    .comparison-view {
+      display: none;
+    }
+    .comparison-view.active {
+      display: block;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-50">
+  <header class="bg-emerald-600 text-white py-8 shadow-lg">
+    <div class="container mx-auto px-4">
+      <h1 class="text-3xl font-bold mb-2">BREEAM Status Dashboard</h1>
+      <p class="text-emerald-100">Oversikt over sertifiseringsstatus og fremdrift</p>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-xl shadow-lg mb-8 transform hover:shadow-xl transition-all duration-200">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-8">
+        <div class="text-center">
+          <h2 class="text-xl font-semibold mb-2 text-gray-700">Total BREEAM Score</h2>
+          <p class="text-5xl font-bold text-emerald-600">72%</p>
+          <p class="text-gray-500 mt-2">Level: Excellent</p>
+        </div>
+        <div class="text-center cursor-pointer" id="buildingCard" onclick="toggleBuildingList()">
+          <h2 class="text-xl font-semibold mb-2 text-gray-700">Antall Bygg</h2>
+          <p class="text-5xl font-bold text-gray-800">5</p>
+          <p class="text-emerald-600 mt-2">Klikk for detaljer →</p>
+        </div>
+        <div class="text-center">
+          <h2 class="text-xl font-semibold mb-2 text-gray-700">Compliance Status</h2>
+          <p class="text-5xl font-bold text-emerald-600">80%</p>
+          <p class="text-gray-500 mt-2">Oppnådd</p>
+        </div>
+      </div>
+
+  <div class="container mx-auto px-4 py-8">
+  <div class="bg-white rounded-xl shadow-lg mb-6 p-6">
+    <h2 class="text-lg font-semibold text-gray-700 mb-4">Filtrer etter compliance-nivå</h2>
+    <div class="flex items-center gap-4">
+      <label for="complianceSlider" class="text-gray-600">Vis verdier under:</label>
+      <input 
+        id="complianceSlider" 
+        type="range" 
+        min="0" 
+        max="100" 
+        value="100" 
+        class="slider w-full" 
+        oninput="updateSliderValue(this.value)" 
+        onchange="filterCategories(this.value)"
+      />
+      <span id="sliderValue" class="text-gray-800 font-bold">100%</span>
+    </div>
+  </div>
+      
+      <!-- Building List -->
+      <div class="building-list border-t" id="buildingList">
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-700">Velg bygg for sammenligning</h3>
+            <button onclick="toggleComparisonView()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors">
+              Sammenlign valgte
+            </button>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <label class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
+              <input type="checkbox" class="form-checkbox h-5 w-5 text-emerald-600" name="building">
+              <span class="ml-2">Bygg A (85%)</span>
+            </label>
+            <label class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
+              <input type="checkbox" class="form-checkbox h-5 w-5 text-emerald-600" name="building">
+              <span class="ml-2">Bygg B (72%)</span>
+            </label>
+            <label class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
+              <input type="checkbox" class="form-checkbox h-5 w-5 text-emerald-600" name="building">
+              <span class="ml-2">Bygg C (68%)</span>
+            </label>
+            <label class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
+              <input type="checkbox" class="form-checkbox h-5 w-5 text-emerald-600" name="building">
+              <span class="ml-2">Bygg D (91%)</span>
+            </label>
+            <label class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
+              <input type="checkbox" class="form-checkbox h-5 w-5 text-emerald-600" name="building">
+              <span class="ml-2">Bygg E (77%)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Standard View -->
+    <div id="standardView">
+      <div id="categories-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </div>
+
+    <!-- Comparison View -->
+    <div id="comparisonView" class="comparison-view">
+      <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Sammenligning av valgte bygg</h2>
+        <div class="space-y-6">
+          <!-- Energiytelse -->
+          <div>
+            <h3 class="font-medium mb-2">Energiytelse</h3>
+            <div class="space-y-2">
+              <div class="flex items-center">
+                <span class="w-24">Bygg A</span>
+                <div class="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-emerald-500" style="width: 85%"></div>
+                </div>
+                <span class="ml-2">85%</span>
+              </div>
+              <div class="flex items-center">
+                <span class="w-24">Bygg B</span>
+                <div class="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-emerald-500" style="width: 72%"></div>
+                </div>
+                <span class="ml-2">72%</span>
+              </div>
+            </div>
+          </div>
+          <!-- Helse og velvære -->
+          <div>
+            <h3 class="font-medium mb-2">Helse og velvære</h3>
+            <div class="space-y-2">
+              <div class="flex items-center">
+                <span class="w-24">Bygg A</span>
+                <div class="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-emerald-500" style="width: 90%"></div>
+                </div>
+                <span class="ml-2">90%</span>
+              </div>
+              <div class="flex items-center">
+                <span class="w-24">Bygg B</span>
+                <div class="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-emerald-500" style="width: 68%"></div>
+                </div>
+                <span class="ml-2">68%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button onclick="toggleComparisonView()" class="mt-6 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors">
+          Tilbake til oversikt
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="text-center py-6 text-gray-500 mt-8">
+    <p>BREEAM-NOR Dashboard © 2025</p>
+    <p class="text-sm">v2</p>
+  </footer>
+
+  <script>
+    const categories = [
+      { id: '1', title: 'Energiytelse', compliance: 85 },
+      { id: '2', title: 'Helse og velvære', compliance: 90 },
+      { id: '3', title: 'Materialvalg', compliance: 95 },
+      { id: '4', title: 'Vannforbruk', compliance: 50 },
+      { id: '5', title: 'Transport', compliance: 80 },
+      { id: '6', title: 'Biodiversitet', compliance: 70 }
+    ];
+
+    function getProgressColor(value) {
+      if (value >= 70) return 'bg-emerald-500';
+      if (value >= 40) return 'bg-amber-500';
+      return 'bg-red-500';
+    }
+
+    function createCategoryCard(category) {
+      return `
+        <div class="category-card bg-white rounded-xl shadow-lg" draggable="true" data-id="${category.id}">
+          <div class="p-6">
+            <h3 class="text-lg font-semibold mb-4 text-gray-700">${category.title}</h3>
+            <div class="h-4 bg-gray-100 rounded-full overflow-hidden">
+              <div class="h-full ${getProgressColor(category.compliance)} transition-all duration-500 progress-bar"
+                   style="width: ${category.compliance}%"></div>
+            </div>
+            <p class="mt-3 text-center font-medium text-gray-600">${category.compliance}% Compliance</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleBuildingList() {
+      const buildingList = document.getElementById('buildingList');
+      buildingList.classList.toggle('expanded');
+    }
+
+    function toggleComparisonView() {
+      const standardView = document.getElementById('standardView');
+      const comparisonView = document.getElementById('comparisonView');
+      const buildingList = document.getElementById('buildingList');
+      
+      standardView.classList.toggle('hidden');
+      comparisonView.classList.toggle('active');
+      buildingList.classList.remove('expanded');
+    }
+
+    function renderCategories() {
+      const grid = document.getElementById('categories-grid');
+      grid.innerHTML = categories.map(category => createCategoryCard(category)).join('');
+      
+      const cards = document.querySelectorAll('.category-card');
+      cards.forEach(card => {
+        card.addEventListener('dragstart', handleDragStart);
+        card.addEventListener('dragend', handleDragEnd);
+        card.addEventListener('dragover', handleDragOver);
+        card.addEventListener('drop', handleDrop);
+      });
+    }
+
+    let draggedCard = null;
+
+    function handleDragStart(e) {
+      draggedCard = e.target.closest('.category-card');
+      setTimeout(() => draggedCard.classList.add('dragging'), 0);
+    }
+
+    function handleDragEnd(e) {
+      e.target.closest('.category-card').classList.remove('dragging');
+      draggedCard = null;
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      if (!draggedCard) return;
+
+      const card = e.target.closest('.category-card');
+      if (!card || card === draggedCard) return;
+
+      const grid = document.getElementById('categories-grid');
+      const cards = [...grid.children];
+      const draggedIdx = cards.indexOf(draggedCard);
+      const droppedIdx = cards.indexOf(card);
+
+      if (draggedIdx < droppedIdx) {
+        card.parentNode.insertBefore(draggedCard, card.nextSibling);
+      } else {
+        card.parentNode.insertBefore(draggedCard, card);
+      }
+    }
+
+    // Initial render
+    renderCategories();
+  </script>
+</body>
+</html>
