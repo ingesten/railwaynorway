@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BREEAM Status Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+    }
+
+    header {
+      background-color: #4CAF50;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .container {
+      margin: 2rem auto;
+      max-width: 1200px;
+      padding: 1rem;
+    }
+
+    .score-summary {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: white;
+      border-radius: 8px;
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .score-summary div {
+      text-align: center;
+    }
+
+    .score-summary .total-score {
+      font-size: 2rem;
+      color: #4CAF50;
+    }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .category-card {
+      background-color: white;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .category-card h3 {
+      margin-bottom: 1rem;
+      color: #333;
+    }
+
+    .progress-bar {
+      height: 20px;
+      background-color: #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress {
+      height: 100%;
+      border-radius: 8px;
+      background-color: #4CAF50;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>BREEAM Status Dashboard</h1>
+    <p>Oversikt over sertifiseringsstatus og fremdrift</p>
+  </header>
+  <div class="container">
+    <div class="score-summary">
+      <div>
+        <h2>Total BREEAM Score</h2>
+        <p class="total-score">72%</p>
+        <p>Level: Excellent</p>
+      </div>
+      <div>
+        <h2>Antall Bygg</h2>
+        <p>5</p>
+      </div>
+      <div>
+        <h2>Compliance Status</h2>
+        <p>80% Oppnådd</p>
+      </div>
+    </div>
+
+    <div class="category-grid">
+      <div class="category-card">
+        <h3>Energiytelse</h3>
+        <div class="progress-bar">
+          <div class="progress" style="width: 85%;"></div>
+        </div>
+        <p>85% Compliance</p>
+      </div>
+      <div class="category-card">
+        <h3>Helse og velvære</h3>
+        <div class="progress-bar">
+          <div class="progress" style="width: 90%;"></div>
+        </div>
+        <p>90% Compliance</p>
+      </div>
+      <div class="category-card">
+        <h3>Materialvalg</h3>
+        <div class="progress-bar">
+          <div class="progress" style="width: 95%;"></div>
+        </div>
+        <p>95% Compliance</p>
+      </div>
+      <div class="category-card">
+        <h3>Vannforbruk</h3>
+        <div class="progress-bar">
+          <div class="progress" style="width: 50%;"></div>
+        </div>
+        <p>50% Compliance</p>
+      </div>
+      <div class="category-card">
+        <h3>Transport</h3>
+        <div class="progress-bar">
+          <div class="progress" style="width: 80%;"></div>
+        </div>
+        <p>80% Compliance</p>
+      </div>
+      <div class="category-card">
+        <h3>Biodiversitet</h3>
+        <div class="progress-bar">
+          <div class="progress" style="width: 70%;"></div>
+        </div>
+        <p>70% Compliance</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>BREEAM-NOR Dashboard © 2025</p>
+  </footer>
+</body>
+</html>
