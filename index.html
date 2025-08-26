@@ -101,19 +101,42 @@
             text-decoration: underline;
         }
 
+        #station-selector {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        #station-select {
+            font-size: 16px;
+            margin-left: 5px;
+        }
+
     </style>
 
     <script>
         const ROTATION_INTERVAL = 20000; 
         const urls = [
-            { url: "https://rtd.banenor.no/web_client/std?station=JEH&layout=landscape&content=departure&notice=yes", duration: 20000 },
+            { url: "", duration: 20000 },
             { url: "dualyrwidget.html", duration: 20000 },
-            { url: "https://rtd.banenor.no/web_client/std?station=JEH&content=track&header=no&notice=yes&track=1", duration: 15000 }
+            { url: "", duration: 15000 }
         ];
 
         let currentIndex = 0;
         let rotationCount = 0;
         let newsIndex = 0;
+        let rotationTimeout;
+
+        function updateUrls(station) {
+            urls[0].url = `https://rtd.banenor.no/web_client/std?station=${station}&layout=landscape&content=departure&notice=yes`;
+            urls[2].url = `https://rtd.banenor.no/web_client/std?station=${station}&content=track&header=no&notice=yes&track=1`;
+        }
 
         // Function to calculate dynamic display time based on description length
         function calculateDisplayTime(description) {
@@ -139,7 +162,7 @@
 
             rotationCount++;
             currentIndex = (currentIndex + 1) % urls.length;
-            setTimeout(rotatePages, currentPage.duration);
+            rotationTimeout = setTimeout(rotatePages, currentPage.duration);
         }
 
         function updateNews(items) {
@@ -174,12 +197,30 @@
         }
 
         window.onload = function() {
-            rotatePages(); 
-            fetchRSSFeed(); 
+            const stationSelect = document.getElementById('station-select');
+            updateUrls(stationSelect.value);
+            rotatePages();
+            fetchRSSFeed();
+
+            stationSelect.addEventListener('change', function() {
+                updateUrls(this.value);
+                currentIndex = 0;
+                clearTimeout(rotationTimeout);
+                rotatePages();
+            });
         };
     </script>
 </head>
 <body>
+    <div id="station-selector">
+        <label for="station-select">Station:</label>
+        <select id="station-select">
+            <option value="JEH">Jevnaker</option>
+            <option value="OSL">Oslo S</option>
+            <option value="LIL">Lillestrøm</option>
+            <option value="TRD">Trondheim S</option>
+        </select>
+    </div>
     <div id="main-container">
         <div id="main-content">
             <iframe id="webframe"></iframe>
