@@ -40,11 +40,32 @@
             background-color: black; 
         }
 
-        #news-section {
+        #sidebar {
             width: 30%; 
             background-color: rgba(0, 0, 0, 0.8);
             color: white;
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        #today-fact {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 14px;
+            background-color: rgba(255, 255, 255, 0.05);
+            font-size: 16px;
+            line-height: 1.4;
+            color: #f2f2f2;
+        }
+
+        #today-fact strong {
+            color: #90caf9;
+        }
+
+        #news-section {
+            flex: 1;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
@@ -115,6 +136,47 @@
         let rotationCount = 0;
         let newsIndex = 0;
 
+        const TODAY_FACTS = {
+            "01-01": "På denne dagen i 1993 ble Tsjekkoslovakia delt i Tsjekkia og Slovakia.",
+            "02-14": "På denne dagen i 1876 søkte Alexander Graham Bell patent på telefonen.",
+            "03-14": "På denne dagen i 1879 ble Albert Einstein født.",
+            "04-09": "På denne dagen invaderte Tyskland Norge i 1940.",
+            "05-17": "På denne dagen i 1814 ble Norges grunnlov vedtatt på Eidsvoll.",
+            "06-07": "På denne dagen i 1905 vedtok Stortinget at unionen med Sverige var oppløst.",
+            "07-20": "På denne dagen i 1969 tok mennesket sine første steg på månen.",
+            "08-17": "På denne dagen i 1945 ble Indonesia erklært uavhengig.",
+            "09-08": "På denne dagen i 1971 ble John Lennon-låten «Imagine» utgitt.",
+            "10-01": "På denne dagen i 1908 ble Ford Model T lansert.",
+            "11-09": "På denne dagen i 1989 falt Berlinmuren.",
+            "12-05": "På denne dagen ville Walt Disney vært {{age}} år gammel."
+        };
+
+        const FALLBACK_FACTS = [
+            "På denne dagen i 2012 landet romsonden Curiosity trygt på Mars.",
+            "På denne dagen i 1958 ble NASA offisielt opprettet.",
+            "På denne dagen i 2008 åpnet Svalbard globale frøhvelv."
+        ];
+
+        function getTodayFact(date = new Date()) {
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const key = `${month}-${day}`;
+            const fact = TODAY_FACTS[key];
+
+            if (fact) {
+                const age = date.getFullYear() - 1901;
+                return fact.replace('{{age}}', age);
+            }
+
+            const fallbackIndex = date.getDate() % FALLBACK_FACTS.length;
+            return FALLBACK_FACTS[fallbackIndex];
+        }
+
+        function renderTodayFact() {
+            const todayFactEl = document.getElementById('today-fact');
+            todayFactEl.innerHTML = `<strong>På denne dagen:</strong> ${getTodayFact()}`;
+        }
+
         // Function to calculate dynamic display time based on description length
         function calculateDisplayTime(description) {
             const baseTime = 5000; 
@@ -144,6 +206,10 @@
 
         function updateNews(items) {
             const newsSection = document.getElementById('news-section');
+            if (!items || items.length === 0) {
+                newsSection.textContent = "No news available.";
+                return;
+            }
             const item = items[newsIndex];
 
             newsSection.innerHTML = `
@@ -166,7 +232,10 @@
                 const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.nrk.no/nyheter/siste.rss');
                 const data = await response.json();
                 const items = data.items;
-                console.log(`Fetched ${items.length} news items from NRK.`);
+                if (!items || items.length === 0) {
+                    console.warn('No news items returned from NRK feed.');
+                }
+                console.log(`Fetched ${items ? items.length : 0} news items from NRK.`);
                 updateNews(items); 
             } catch (error) {
                 console.error('Error fetching RSS feed:', error);
@@ -174,6 +243,7 @@
         }
 
         window.onload = function() {
+            renderTodayFact();
             rotatePages(); 
             fetchRSSFeed(); 
         };
@@ -189,8 +259,11 @@
             </div>
         </div>
 
-        <div id="news-section">
-            Loading news...
+        <div id="sidebar">
+            <div id="today-fact">Laster dagens fun fact...</div>
+            <div id="news-section">
+                Loading news...
+            </div>
         </div>
     </div>
 </body>
